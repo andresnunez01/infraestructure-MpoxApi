@@ -19,5 +19,4 @@ module "dev_vm" {
     MAILER_EMAIL = var.MAILER_EMAIL
     PORT = var.PORT
     MONGO_URL = var.MONGO_URL
-    
 }
