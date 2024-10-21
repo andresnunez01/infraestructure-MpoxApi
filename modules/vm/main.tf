@@ -176,6 +176,5 @@ resource "null_resource" "init_docker" {
       private_key = file("./keys/Mpox_server")
       host        = azurerm_linux_virtual_machine.IN_VM.public_ip_address
     }
-    
   }
 }
