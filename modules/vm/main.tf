@@ -1,6 +1,6 @@
 #Construir Resource Group
 
-resource "azurerm_resource_group" "IN_Mpox" {
+resource "azurerm_resource_group" "IN_RG" {
   name     = var.resource_group
   location = var.location
 }
@@ -9,7 +9,7 @@ resource "azurerm_resource_group" "IN_Mpox" {
 
 resource "azurerm_virtual_network" "IN_VNET" {
   name                = var.vnet_name
-  resource_group_name = azurerm_resource_group.IN_Mpox.name
+  resource_group_name = azurerm_resource_group.IN_RG.name
   location            = var.location
   address_space       = ["10.123.0.0/16"]
 }
@@ -18,7 +18,7 @@ resource "azurerm_virtual_network" "IN_VNET" {
 
 resource "azurerm_subnet" "IN_SUBNET" {
   name                 = var.subnet_name
-  resource_group_name  = azurerm_resource_group.IN_Mpox.name
+  resource_group_name  = azurerm_resource_group.IN_RG.name
   virtual_network_name = azurerm_virtual_network.IN_VNET.name
   address_prefixes     = ["10.123.1.0/24"]
 }
@@ -28,7 +28,7 @@ resource "azurerm_subnet" "IN_SUBNET" {
 resource "azurerm_network_security_group" "IN_SG" {
   name                = var.security_name
   location            = var.location
-  resource_group_name = azurerm_resource_group.IN_Mpox.name
+  resource_group_name = azurerm_resource_group.IN_RG.name
 
   security_rule {
     name                       = "ssh-allow"
@@ -76,7 +76,7 @@ resource "azurerm_subnet_network_security_group_association" "IN_SGA" {
 
 resource "azurerm_public_ip" "IN_IP" {
   name                = var.ip_name
-  resource_group_name = azurerm_resource_group.IN_Mpox.name
+  resource_group_name = azurerm_resource_group.IN_RG.name
   location            = var.location
   allocation_method   = "Dynamic"
 }
@@ -86,7 +86,7 @@ resource "azurerm_public_ip" "IN_IP" {
 resource "azurerm_network_interface" "IN_NIC" {
   name                = var.nic_name
   location            = var.location
-  resource_group_name = azurerm_resource_group.IN_Mpox.name
+  resource_group_name = azurerm_resource_group.IN_RG.name
   ip_configuration {
     name                          = "internal"
     subnet_id                     = azurerm_subnet.IN_SUBNET.id
@@ -99,7 +99,7 @@ resource "azurerm_network_interface" "IN_NIC" {
 
 resource "azurerm_linux_virtual_machine" "IN_VM" {
   name                  = var.vm_name
-  resource_group_name   = azurerm_resource_group.IN_Mpox.name
+  resource_group_name   = azurerm_resource_group.IN_RG.name
   location              = var.location
   size                  = "Standard_B2s"
   admin_username        = var.admin_username
