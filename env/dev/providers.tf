@@ -1,10 +1,10 @@
 terraform {
-    
+
   backend "azurerm" {
-    resource_group_name = "NetworkWatcherRG"
+    resource_group_name  = "NetworkWatcherRG"
     storage_account_name = "711incidentandres"
-    container_name = "mpox-container"
-    key = "terraform.tfstate"
+    container_name       = "mpox-container"
+    key                  = "terraform.tfstate"
   }
   required_providers {
     azurerm = {
