@@ -1,0 +1,58 @@
+services:
+  reverse-proxy:
+    image: nginxproxy/nginx-proxy:alpine
+    container_name: Reverse-Proxy
+    restart: always
+    ports:
+      - 80:80
+      - 443:443
+    environment:
+      - VIRTUAL_HOST=${DOMAIN}
+      - VIRTUAL_PATH=/.well-known
+    volumes:
+      - /volumes/nginx/certs:/etc/nginx/certs:ro
+      - /volumes/nginx/vhostd:/etc/nginx/vhost.d
+      - /volumes/nginx/html:/usr/share/nginx/html:rw
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+ 
+ 
+  lets-encrypt:
+    image: jrcs/letsencrypt-nginx-proxy-companion
+    container_name: 'Lets-Encrypt'
+    restart: always
+    environment:
+      - NGINX_PROXY_CONTAINER=Reverse-Proxy
+    volumes:
+      - /volumes/nginx/certs:/etc/nginx/certs
+      - /volumes/nginx/vhostd:/etc/nginx/vhost.d
+      - /volumes/nginx/html:/usr/share/nginx/html:rw
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+ 
+  mpox-api:
+      image: andresnunez01/mpox-api:latest
+      container_name: mpox-api
+      expose:
+        - "3000"
+      depends_on:
+        - mongo
+      environment:
+        MONGO_URL: ${MONGO_URL}
+        PORT: ${PORT}
+        MONGO_DB: ${MONGO_DB}
+        MAIL_SECRET_KEY: ${MAIL_SECRET_KEY}
+        MAIL_SERVICE: ${MAIL_SERVICE}
+        MAIL_USER: ${MAIL_USER}
+        MAPBOX_ACCESS_TOKEN: ${MAPBOX_ACCESS_TOKEN}
+        LETSENCRYPT_HOST: ${DOMAIN}
+        LETSENCRYPT_EMAIL: ${MAIL_USER}
+        VIRTUAL_HOST: ${DOMAIN}
+        VIRTUAL_PATH: /
+  
+  mongo:
+    image: mongo:latest
+    container_name: mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+    volumes:
+      - /volumes/mongo/data:/data/db
