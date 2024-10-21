@@ -1,9 +1,9 @@
 terraform {
     
   backend "azurerm" {
-    resource_group_name = "IN-Mpox"
-    storage_account_name = "mpoxinfra"
-    container_name = "mpox-tfstate"
+    resource_group_name = "NetworkWatcherRG"
+    storage_account_name = "711incidentandres"
+    container_name = "mpox-container"
     key = "terraform.tfstate"
   }
   required_providers {
