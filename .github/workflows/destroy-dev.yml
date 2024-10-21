@@ -1,0 +1,60 @@
+name: Destroy Dev Infraestructure
+on:
+  workflow_dispatch:
+
+
+
+permissions:
+  id-token: write
+  contents: read
+  pull-requests: write
+
+env:
+    ARM_CLIENT_ID: "${{ secrets.ARM_CLIENT_ID }}"
+    ARM_CLIENT_SECRET: "${{ secrets.ARM_CLIENT_SECRET }}"
+    ARM_SUBSCRIPTION_ID: "${{ secrets.ARM_SUBSCRIPTION_ID }}"
+    ARM_TENANT_ID: "${{ secrets.ARM_TENANT_ID }}"
+    TF_VAR_MONGO_URL: "${{secrets.TF_VAR_MONGO_URL}}"
+    TF_VAR_PORT: "${{secrets.TF_VAR_PORT}}"
+    TF_VAR_MONGO_DB: "${{secrets.TF_VAR_MONGO_DB}}"
+    TF_VAR_MAILER_ACCESS_TOKEN: "${{secrets.TF_VAR_MAIL_SECRET_KEY}}"
+    TF_VAR_MAPBOX_ACCESS_TOKEN: "${{secrets.TF_VAR_MAPBOX_ACCESS_TOKEN}}"
+    TF_VAR_MAILER_SERVICE: "${{secrets.TF_VAR_MAIL_SERVICE}}"
+    TF_VAR_MAILER_EMAIL: "${{secrets.TF_VAR_MAIL_USER}}"
+    TF_VAR_MONGO_INITDB_ROOT_PASSWORD: "${{secrets.TF_VAR_MONGO_INITDB_ROOT_PASSWORD}}"
+    TF_VAR_MONGO_INITDB_ROOT_USERNAME: "${{secrets.TF_VAR_MONGO_INITDB_ROOT_USERNAME}}"
+    TF_VAR_DOMAIN: "${{secrets.TF_VAR_DOMAIN}}"
+
+
+jobs:
+    terraform-plan-destroy:
+        runs-on: ubuntu-latest
+        env: 
+            ARM_SKIP_PROVIDER_REGISTRATION: true
+        steps:
+            - name: Clone git repository
+              uses: actions/checkout@v4
+
+            - name: Terraform setup
+              uses: hashicorp/setup-terraform@v2
+              with:
+                terraform_version: 1.9.6
+                terraform_wrapper: false
+
+            - name: Create SSH keys from secret
+              run: |
+                mkdir -p ./env/dev/keys
+                echo "${{ secrets.SSH_PRIVATE_KEY }}" > ./env/dev/keys/Mpox_server
+                echo "${{ secrets.SSH_PUBLIC_KEY }}" > ./env/dev/keys/Mpox_server.pub
+                chmod 777 ./env/dev/keys/Mpox_server
+                chmod 777 ./env/dev/keys/Mpox_server.pub
+                
+
+            - name: Terraform init
+              run: terraform -chdir=env/dev init
+
+            - name: Terraform fmt
+              run: terraform -chdir=env/dev fmt
+
+            - name: Terraform destroy
+              run: terraform -chdir=env/dev destroy --auto-approve
