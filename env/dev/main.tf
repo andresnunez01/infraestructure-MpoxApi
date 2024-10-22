@@ -21,3 +21,8 @@ module "dev_vm" {
   MONGO_URL                  = var.MONGO_URL
 
 }
+
+resource "azurerm_resource_group" "andres" {
+  name     = "alvarez"
+  location = "eastus2"
+}
